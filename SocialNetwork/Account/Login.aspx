@@ -7,6 +7,8 @@
         <h1><%: Title %>.</h1>
     </hgroup>
 
+    <p>Hello World</p>
+
     <div class="row-fluid">
         <div class="span7">
             <section id="loginForm">
