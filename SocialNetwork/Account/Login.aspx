@@ -7,6 +7,10 @@
         <h1><%: Title %>.</h1>
     </hgroup>
 
+    <p>Hello World</p>
+
+    <p>HOLA JESUS</p>
+
     <div class="row-fluid">
         <div class="span7">
             <section id="loginForm">
