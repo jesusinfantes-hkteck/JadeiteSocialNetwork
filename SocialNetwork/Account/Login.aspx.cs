@@ -25,6 +25,13 @@ namespace SocialNetwork.Account
         {
             if (IsValid)
             {
+                if (!IsValidEmail(UserName.Text))
+                {
+                    FailureText.Text = "Invalid email format.";
+                    ErrorMessage.Visible = true;
+                    return;
+                }
+
                 // Validate the user password
                 IAuthenticationManager manager = new AuthenticationIdentityManager(new IdentityStore()).Authentication;
                 IdentityResult result = manager.CheckPasswordAndSignIn(Context.GetOwinContext().Authentication, UserName.Text, Password.Text, RememberMe.Checked);
@@ -38,6 +45,13 @@ namespace SocialNetwork.Account
                     ErrorMessage.Visible = true;
                 }
             }
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(email,
+                @"^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         }
     }
 }
