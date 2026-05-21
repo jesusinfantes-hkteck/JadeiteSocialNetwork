@@ -1,0 +1,466 @@
+﻿# ARIADNA TASK SPEC
+# Version: 1.0.0
+# Generated: 2026-05-21T14:45:28.1439221+00:00
+# SpecBuilder: AriadnaKnowledgeStore v0.1.0-mvp
+# RepoId: jesusinfantes-hkteck/JadeiteSocialNetwork@main
+# VersionId: 898c4aba-1681-4364-bf4b-ccdbc5648c1d
+
+---
+
+## SECTION 0 — PROBLEMA (entrada del usuario)
+
+### 0.1 Descripción del problema
+
+> Add a lockout expiry of 15 minutes in Login.aspx.cs: after 5 failed login attempts the account unlocks automatically after 15 minutes without requiring admin intervention
+
+### 0.2 Comportamiento actual
+
+```
+Comportamiento actual según los nodos recuperados del grafo (ver Section 2 y Section 3).
+```
+
+### 0.3 Comportamiento esperado
+
+```
+Add a lockout expiry of 15 minutes in Login.aspx.cs: after 5 failed login attempts the account unlocks automatically after 15 minutes without requiring admin intervention
+```
+
+### 0.4 Contexto adicional
+
+- Entorno: .NET Framework 4.5 WebForms · Entity Framework 6
+- Impacto: Bajo — cambio localizado en un único fichero
+
+### 0.5 Pull Requests relacionados (recuperados de Neo4j)
+
+<!-- Generado automáticamente por GraphRAG — PRs semánticamente próximos -->
+No related pull requests found.
+
+---
+
+## SECTION 1 — CONTEXTO DEL AGENTE
+
+Eres un agente de modificación de código. Tu trabajo es:
+
+- Localizar las áreas relevantes para implementar el cambio descrito en Section 0
+- Modificar **únicamente** los archivos necesarios
+- Respetar todas las convenciones del código existente
+- Producir únicamente código compilable
+
+**Convenciones de este repositorio (jesusinfantes-hkteck/JadeiteSocialNetwork@main):**
+
+```
+Namespace raíz:   SocialNetwork
+Target framework: .NET Framework 4.5 WebForms
+Nullable refs:    False
+Async pattern:    sync
+ORM:              Entity Framework 6
+Test framework:   none
+```
+
+**Restricciones:**
+
+- No cambiar esquema de base de datos sin instrucción explícita
+- No alterar contratos de API pública sin necesidad
+- Seguir las convenciones de código existentes
+
+---
+
+## SECTION 2 — GRAFO DE ENTIDADES RELEVANTES (Neo4j GraphRAG)
+
+<!-- Generado automáticamente. Contiene solo los nodos recuperados para este cambio. -->
+
+### Nodos de código (vector similarity search)
+
+| Nodo | Tipo | Archivo | Score |
+|------|------|---------|-------|
+| `method:SocialNetwork.Account.Login.IncrementFailedAttempts` | method | `SocialNetwork/Account/Login.aspx.cs` | 0,82 |
+| `method:SocialNetwork.Account.Login.ResetFailedAttempts` | method | `SocialNetwork/Account/Login.aspx.cs` | 0,80 |
+| `method:SocialNetwork.Account.Login.LogIn` | method | `SocialNetwork/Account/Login.aspx.cs` | 0,78 |
+| `method:SocialNetwork.Account.Login.IsLockedOut` | method | `SocialNetwork/Account/Login.aspx.cs` | 0,77 |
+
+
+### Expansión de grafo (dependencias directas — 1-2 hops)
+
+```
+Method: IncrementFailedAttempts
+    └─[HAS_METHOD]──→ Login
+    └─[HAS_METHOD]──→ IsValidEmail
+    └─[HAS_METHOD]──→ ResetFailedAttempts
+    └─[HAS_METHOD]──→ IsLockedOut
+    └─[HAS_METHOD]──→ LogIn
+
+Method: ResetFailedAttempts
+    └─[HAS_METHOD]──→ Login
+    └─[HAS_METHOD]──→ IsValidEmail
+    └─[HAS_METHOD]──→ IncrementFailedAttempts
+    └─[HAS_METHOD]──→ IsLockedOut
+    └─[HAS_METHOD]──→ LogIn
+
+Method: LogIn
+    └─[HAS_METHOD]──→ Login
+    └─[HAS_METHOD]──→ IsValidEmail
+    └─[HAS_METHOD]──→ ResetFailedAttempts
+    └─[HAS_METHOD]──→ IncrementFailedAttempts
+    └─[HAS_METHOD]──→ IsLockedOut
+
+Method: IsLockedOut
+    └─[HAS_METHOD]──→ Login
+    └─[HAS_METHOD]──→ IsValidEmail
+    └─[HAS_METHOD]──→ ResetFailedAttempts
+    └─[HAS_METHOD]──→ IncrementFailedAttempts
+    └─[HAS_METHOD]──→ LogIn
+
+
+```
+
+---
+
+## SECTION 2.5 — GUARDRAILS (no negociable)
+
+> **El agente DEBE leer esta sección antes de escribir cualquier línea de código.**
+> Las reglas siguientes son obligatorias y su incumplimiento invalida el resultado.
+
+### Vulnerabilidades de seguridad detectadas en la configuración
+
+| Regla | Nombre | Severidad | Entorno | Descripción |
+|-------|--------|-----------|---------|-------------|
+| `SEC-WF-005` | Information Disclosure via Errors | **Medium** | Debug | Debug mode is enabled or custom errors are off, exposing sensitive error information |
+| `SEC-WF-012` | ViewState Encryption Not Enforced | **Medium** | Debug | ViewState encryption is not set to 'Always', potentially exposing sensitive data |
+| `SEC-WF-012` | ViewState Encryption Not Enforced | **Medium** | Release | ViewState encryption is not set to 'Always', potentially exposing sensitive data |
+| `SEC-WF-007` | Insecure Cookie Configuration | **High** | Debug | Cookies lack HttpOnly or requireSSL flags, enabling session hijacking and man-in-the-middle attacks |
+| `SEC-WF-007` | Insecure Cookie Configuration | **High** | Release | Cookies lack HttpOnly or requireSSL flags, enabling session hijacking and man-in-the-middle attacks |
+| `SEC-WF-003` | Request Validation Disabled | **Critical** | Debug | Request validation is disabled, allowing Cross-Site Scripting (XSS) attacks |
+| `SEC-WF-003` | Request Validation Disabled | **Critical** | Release | Request validation is disabled, allowing Cross-Site Scripting (XSS) attacks |
+
+**Vulnerabilidades preexistentes — no las corrijas en este cambio; no introduzcas variantes similares:**
+- `SEC-WF-005`: Set <compilation debug="false" /> and <customErrors mode="RemoteOnly" /> or mode="On"
+- `SEC-WF-012`: Set <pages viewStateEncryptionMode="Always" /> for sensitive applications
+- `SEC-WF-012`: Set <pages viewStateEncryptionMode="Always" /> for sensitive applications
+- `SEC-WF-007`: Set <httpCookies httpOnlyCookies="true" requireSSL="true" /> and <forms requireSSL="true" />
+- `SEC-WF-007`: Set <httpCookies httpOnlyCookies="true" requireSSL="true" /> and <forms requireSSL="true" />
+- `SEC-WF-003`: Set <pages validateRequest="true" /> in system.web section
+- `SEC-WF-003`: Set <pages validateRequest="true" /> in system.web section
+
+### Reglas de validación en scope
+
+_No se detectaron infracciones de reglas de validación en los archivos en scope._
+
+### Restricciones arquitectónicas de este repositorio
+
+- **Framework**: ASP.NET WebForms. NO introducir MVC controllers, Razor Pages ni endpoints REST.
+- **UI pattern**: code-behind (`.aspx` + `.aspx.cs`). NO crear clases que hereden de `Controller`.
+- **Errores al usuario**: usar el mecanismo de errores existente en el proyecto. NO añadir `<asp:Label>` inline para errores sin seguir el patrón actual.
+- **ORM**: Entity Framework 6. NO usar SQL raw ni Dapper. Usa el DbContext existente.
+- **Migraciones**: si necesitas cambios de esquema, crea una migración EF6 explícita. NO modificar la base de datos directamente.
+- **Tests**: no se detectó framework de tests. NO generar tests; indicar en el PR que la cobertura queda pendiente.
+### Lista de verificación obligatoria antes de entregar el código
+
+- [ ] El cambio compila sin errores (`msbuild` / `dotnet build` sale 0)
+- [ ] No he introducido ningún patrón ausente en los archivos circundantes
+- [ ] No he usado `Response.Write`, `eval`, ni concatenación de SQL sin parámetros
+- [ ] Todos los archivos que modifico están listados en Section 6
+- [ ] He respetado el mecanismo de manejo de errores existente en el proyecto
+
+
+---
+
+## SECTION 3 — CÓDIGO FUENTE RELEVANTE (recuperado de Neo4j)
+
+<!-- El código siguiente es el output directo del chunker de Ariadna. -->
+
+### Login.aspx.cs (`SocialNetwork/Account/Login.aspx.cs`)
+
+```csharp
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
+using System;
+using System.Linq;
+using System.Web;
+using System.Web.UI;
+
+namespace SocialNetwork.Account
+{
+    public partial class Login : Page
+    {
+        private const int MaxFailedAttempts = 5;
+
+        protected void Page_Load(object sender, EventArgs e)
+        {
+            RegisterHyperLink.NavigateUrl = "Register";
+            OpenAuthLogin.ReturnUrl = Request.QueryString["ReturnUrl"];
+            var returnUrl = HttpUtility.UrlEncode(Request.QueryString["ReturnUrl"]);
+            if (!String.IsNullOrEmpty(returnUrl))
+            {
+                RegisterHyperLink.NavigateUrl += "?ReturnUrl=" + returnUrl;
+            }
+        }
+
+        protected void LogIn(object sender, EventArgs e)
+        {
+            if (IsValid)
+            {
+                if (!IsValidEmail(UserName.Text))
+                {
+                    FailureText.Text = "Invalid email format.";
+                    ErrorMessage.Visible = true;
+                    return;
+                }
+
+                if (IsLockedOut(UserName.Text))
+                {
+                    FailureText.Text = "Account locked.";
+                    ErrorMessage.Visible = true;
+                    return;
+                }
+
+                // Validate the user password
+                IAuthenticationManager manager = new AuthenticationIdentityManager(new IdentityStore()).Authentication;
+                IdentityResult result = manager.CheckPasswordAndSignIn(Context.GetOwinContext().Authentication, UserName.Text, Password.Text, RememberMe.Checked);
+                if (result.Success)
+                {
+                    ResetFailedAttempts(UserName.Text);
+                    OpenAuthProviders.RedirectToReturnUrl(Request.QueryString["ReturnUrl"], Response);
+                }
+                else
+                {
+                    IncrementFailedAttempts(UserName.Text);
+                    FailureText.Text = result.Errors.FirstOrDefault();
+                    ErrorMessage.Visible = true;
+                }
+            }
+        }
+
+        private bool IsLockedOut(string email)
+        {
+            return Session["AccountLocked_" + email] != null && (bool)Session["AccountLocked_" + email];
+        }
+
+        private void IncrementFailedAttempts(string email)
+        {
+            string key = "FailedAttempts_" + email;
+            int attempts = Session[key] != null ? (int)Session[key] : 0;
+            attempts++;
+            Session[key] = attempts;
+            if (attempts >= MaxFailedAttempts)
+            {
+                Session["AccountLocked_" + email] = true;
+            }
+        }
+
+        private void ResetFailedAttempts(string email)
+        {
+            Session.Remove("FailedAttempts_" + email);
+            Session.Remove("AccountLocked_" + email);
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            return System.Text.RegularExpressions.Regex.IsMatch(email,
+                @"^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})$",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        }
+    }
+}
+
+```
+
+### Login.aspx (`SocialNetwork/Account/Login.aspx`)
+
+```csharp
+<%@ Page Title="Log in" Language="C#" MasterPageFile="~/Site.Master" AutoEventWireup="true" CodeBehind="Login.aspx.cs" Inherits="SocialNetwork.Account.Login" Async="true" %>
+
+<%@ Register Src="~/Account/OpenAuthProviders.ascx" TagPrefix="uc" TagName="OpenAuthProviders" %>
+
+<asp:Content runat="server" ID="BodyContent" ContentPlaceHolderID="MainContent">
+    <hgroup class="title">
+        <h1><%: Title %>.</h1>
+    </hgroup>
+
+    <p>Hello World</p>
+
+    <p>HOLA JESUS</p>
+
+    <div class="row-fluid">
+        <div class="span7">
+            <section id="loginForm">
+                
+                <fieldset class="form-horizontal">
+                    <legend>Use a local account to log in.</legend>
+                      <asp:PlaceHolder runat="server" ID="ErrorMessage" Visible="false">
+                        <p class="text-error">
+                            <asp:Literal runat="server" ID="FailureText" />
+                        </p>
+                    </asp:PlaceHolder>
+                    <div class="control-group">
+                        <asp:Label runat="server" AssociatedControlID="UserName" CssClass="control-label">User name</asp:Label>
+                        <div class="controls">
+                            <asp:TextBox runat="server" ID="UserName" />
+                            <asp:RequiredFieldValidator runat="server" ControlToValidate="UserName"
+                                CssClass="text-error" ErrorMessage="The user name field is required." />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <asp:Label runat="server" AssociatedControlID="Password" CssClass="control-label">Password</asp:Label>
+                        <div class="controls">
+                            <asp:TextBox runat="server" ID="Password" TextMode="Password" />
+                            <asp:RequiredFieldValidator runat="server" ControlToValidate="Password" CssClass="text-error" ErrorMessage="The password field is required." />
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="controls">
+                            <label class="checkbox">
+                                <asp:CheckBox runat="server" ID="RememberMe" />
+                                <asp:Label runat="server" AssociatedControlID="RememberMe">Remember me?</asp:Label>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-actions no-color">
+                        <asp:Button runat="server" OnClick="LogIn" Text="Log in" CssClass="btn" />
+                    </div>
+                </fieldset>
+                <p>
+                    <asp:HyperLink runat="server" ID="RegisterHyperLink" ViewStateMode="Disabled">Register</asp:HyperLink>
+                    if you don't have a local account.
+                </p>
+            </section>
+        </div>
+
+        <div class="span5">
+            <section id="socialLoginForm">
+                <uc:OpenAuthProviders runat="server" ID="OpenAuthLogin" />
+            </section>
+        </div>
+    </div>
+</asp:Content>
+
+```
+
+
+
+---
+
+## SECTION 4 — ANÁLISIS Y RECOMENDACIONES
+
+### 4.1 Análisis del contexto
+
+Se recuperaron 4 nodos de código relevantes en 2 fichero(s) mediante búsqueda vectorial. El grafo muestra 24 relación/relaciones entre componentes. Fichero(s) más relevante(s): `Login.aspx.cs`.
+
+### 4.2 Archivos a considerar
+
+- `SocialNetwork/Account/Login.aspx.cs`
+
+### 4.3 Dependencias afectadas
+
+- Componentes relacionados detectados en el grafo:
+  - Relación `HAS_METHOD` entre nodos del scope
+
+---
+
+## SECTION 5 — CRITERIOS DE ACEPTACIÓN
+
+### AC-00: No-regresión (OBLIGATORIO)
+
+- **Dado** que el repositorio compila correctamente en el estado actual
+- **Cuando** se aplican los cambios descritos en esta SPEC
+- **Entonces** la aplicación sigue compilando sin errores y las páginas existentes funcionan
+- **Verificar con**: `msbuild /p:Configuration=Debug` — código de salida 0, cero errores nuevos
+
+### AC-01: Lockout expires after 15 minutes
+
+- **Dado** A user account has been locked in Login.aspx.cs after 5 failed login attempts
+- **Cuando** 15 minutes pass and the user attempts to log in with correct credentials
+- **Entonces** The login succeeds and the user is authenticated and redirected
+- **Verificar con**: Trigger 5 failed logins, wait 15 minutes, then verify successful login with valid credentials returns HTTP 302 redirect
+
+### AC-02: Lockout persists before expiry
+
+- **Dado** A user account has been locked after 5 failed attempts in Login.aspx.cs
+- **Cuando** The user attempts to log in 14 minutes after the lockout occurred
+- **Entonces** The FailureText.Text displays 'Account locked.' and ErrorMessage.Visible is true
+- **Verificar con**: Trigger 5 failed logins, wait 14 minutes, attempt login and verify the error message 'Account locked.' appears on the page
+
+### AC-03: Failed attempt counter resets
+
+- **Dado** A user has 4 failed login attempts and the account is not yet locked
+- **Cuando** 15 minutes pass without a 5th failed attempt and the user logs in with correct credentials
+- **Entonces** The login succeeds and ResetFailedAttempts clears Session keys 'FailedAttempts_' and 'AccountLocked_'
+- **Verificar con**: Trigger 4 failed logins, wait 15 minutes, login successfully, then verify 5 subsequent failed attempts are required to trigger a new lockout
+
+### AC-04: Alcance mínimo (OBLIGATORIO)
+
+- **Dado** el conjunto de archivos identificados en Section 6
+- **Cuando** el agente entrega el cambio
+- **Entonces** únicamente esos archivos han sido modificados, sin nuevas dependencias NuGet
+  y sin cambios en el esquema de base de datos salvo instrucción explícita
+- **Verificar con**: `git diff --name-only` — solo los archivos listados en Section 6
+
+
+---
+
+## SECTION 6 — OUTPUT ESPERADO
+
+El agente debe producir exactamente los siguientes archivos modificados:
+
+```
+// ===== SocialNetwork/Account/Login.aspx.cs =====
+[contenido completo del archivo con el cambio aplicado]
+```
+
+**Formato de entrega:**
+- Un bloque de código por archivo
+- Encabezado `// ===== ruta/archivo =====` antes de cada bloque
+- Código completo del archivo — no solo el diff
+- Sin texto adicional entre bloques
+
+
+---
+
+## SECTION 6.5 — INSTRUCCIONES DE ENTREGA
+
+### Flujo esperado tras aplicar el cambio
+
+1. **Verificar compilación** — ejecutar `msbuild` antes de continuar
+2. **Crear commit** con mensaje descriptivo:
+   ```bash
+   git add SocialNetwork/Account/Login.aspx.cs
+   git commit -m "feat: add-a-lockout-expiry-of-15-minutes-in-login.aspx.cs:-after-5-failed-logi"
+   ```
+3. **Crear Pull Request** hacia `main` con:
+   - Título: `[Ariadna] Add a lockout expiry of 15 minutes in Login.aspx.cs: after 5 failed login attempts the account unlocks automatically after 15 minutes without requiring admin intervention`
+   - Descripción: enlace a esta SPEC + resumen del cambio
+4. **NO hacer merge directo** — el PR debe ser revisado por un humano
+5. **Tras aprobación del PR**, GitHub enviará automáticamente el webhook
+   a Ariadna (`POST /api/webhook/github`) que actualizará Neo4j
+
+### En caso de error
+
+Si la compilación falla o el cambio produce comportamiento inesperado:
+```bash
+git checkout -- SocialNetwork/Account/Login.aspx.cs
+```
+Esto revierte los archivos modificados al estado anterior sin afectar el resto.
+
+---
+
+## SECTION 7 — METADATA DE TRAZABILIDAD
+
+```json
+{
+  "specVersion":      "1.0.0",
+  "generatedAt":      "2026-05-21T14:45:28.1439221+00:00",
+  "ariadnaVersion":   "0.1.0-mvp",
+  "repoId":           "jesusinfantes-hkteck/JadeiteSocialNetwork@main",
+  "neo4jVersionId":   "898c4aba-1681-4364-bf4b-ccdbc5648c1d",
+  "userQuery":        "Add a lockout expiry of 15 minutes in Login.aspx.cs: after 5 failed login attempts the account unlocks automatically after 15 minutes without requiring admin intervention",
+  "vectorSearchTopK": 4,
+  "graphHops":        2,
+  "sourceNodes":      4,
+  "relatedPrs":       0
+}
+```
+
+---
+
+<!-- End of SPEC -->
+
